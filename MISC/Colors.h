@@ -4,6 +4,9 @@
 #include <SDL/SDL.h>
 #include <transformSDL/SDL-Color.h>
 
+#include <stdlib.h>
+#include <time.h>
+
 #define CP_TO_GFX(c) c = getSolidFromPixel(screen, c)
 
 class ColorPallette {
@@ -28,6 +31,7 @@ public:
     uint32_t purple;
 
     void convertColorsToGfxMode(void);
+    uint32_t getRandomColor(void);
 
 private:
     SDL_Surface* screen;
@@ -53,6 +57,8 @@ ColorPallette::ColorPallette(SDL_Surface* screen) {
     navy    = SDL_MapRGB(sdlf, 0x00, 0x00, 0x80);
     fuschia = SDL_MapRGB(sdlf, 0xFF, 0x00, 0xFF);
     purple  = SDL_MapRGB(sdlf, 0x80, 0x00, 0x80);
+
+    srand(time(NULL));
 }
 
 void ColorPallette::convertColorsToGfxMode(void) {
@@ -72,6 +78,33 @@ void ColorPallette::convertColorsToGfxMode(void) {
     CP_TO_GFX(navy);
     CP_TO_GFX(fuschia);
     CP_TO_GFX(purple);
+}
+
+uint32_t ColorPallette::getRandomColor(void) {
+    static uint32_t colorArray[16];
+    static int doCopy = 0;
+    if(doCopy == 0) {
+        colorArray[0]  = white;
+        colorArray[1]  = silver;
+        colorArray[2]  = grey;
+        colorArray[3]  = black;
+        colorArray[4]  = red;
+        colorArray[5]  = maroon;
+        colorArray[6]  = yellow;
+        colorArray[7]  = olive;
+        colorArray[8]  = lime;
+        colorArray[9]  = green;
+        colorArray[10] = aqua;
+        colorArray[11] = teal;
+        colorArray[12] = blue;
+        colorArray[13] = navy;
+        colorArray[14] = fuschia;
+        colorArray[15] = purple;
+        doCopy = 1;
+    }
+
+    int r_index = rand() % 16;
+    return colorArray[r_index];
 }
 
 #endif // __JJC__COLORS__H__

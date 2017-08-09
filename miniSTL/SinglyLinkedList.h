@@ -28,6 +28,15 @@ public:
         start->next = S_LIST_END;
     }
 
+    ~SinglyLinkedList(void) {
+        Node* __t = start.next;
+        while(__t != S_LIST_END) {
+            Node* __tmp = __t->next;
+            delete __t;
+            __t = __tmp;
+        }
+    }
+
     // this data is returned if an invalid request for
     // data in the list is made
     void setDefaultData(T data);
