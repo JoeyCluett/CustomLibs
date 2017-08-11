@@ -7,6 +7,8 @@ protected:
     int x = 0, y = 0;
     int colorIndex_on, colorIndex_off;
 
+    int __ITEM_TYPE = 0;
+
 public:
     void setPosition(int x, int y) {
         this->x = x;

@@ -5,6 +5,17 @@
 #include <thread>
 #include <boost/thread.hpp>
 
+// mostly for use by layouts
+namespace __N_Type {
+    const int id_undefined         = 0;
+    const int id_text_output       = 1;
+    const int id_text_input        = 2;
+    const int id_checkbox          = 3;
+    const int id_radio_button      = 4;
+    const int id_vertical_layout   = 5;
+    const int id_horizontal_layout = 6;
+}
+
 void initializeNcurses(int BACKGROUND_COLOR) {
     initscr();
     raw();
