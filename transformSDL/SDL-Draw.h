@@ -28,6 +28,23 @@ void drawLine(SDL_Line _line) {
     }
 }
 
+void drawPolygon(SDL_Line* _line) {
+    int s = _line->lineSize();
+
+    if(s > 2) {
+        SDL_Point p1 = (*_line)[0];
+        SDL_Point p2;
+
+        for(int i = 0; i < s; i++) {
+            p2 = (*_line)[(i+1) % s];
+
+            lineColor((*_line).getSurface(), p1.x, p1.y, p2.x, p2.y, (*_line).getColor());
+            p1 = p2;
+        }
+
+    }
+}
+
 void drawPolygon(SDL_Line _line) {
     int s = _line.lineSize();
 
@@ -44,6 +61,7 @@ void drawPolygon(SDL_Line _line) {
 
     }
 }
+
 
 // applies translation to given line
 void putTranslation(SDL_Line& _line, float dx, float dy) {
@@ -85,7 +103,7 @@ void putScale(SDL_Line& _line, float scale) {
 }
 
 // applies transformation, rotation first
-SDL_Line applyTransformRot(SDL_Line& _line, float dx, float dy, float rad) {
+SDL_Line applyTransformRot(SDL_Line _line, float dx, float dy, float rad) {
     float sin_rad = sinf(rad);
     float cos_rad = cosf(rad);
 

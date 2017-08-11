@@ -5,7 +5,7 @@ class NcursesItem {
 protected:
     // where on screen is the item located
     int x = 0, y = 0;
-    int colorIndex;
+    int colorIndex_on, colorIndex_off;
 
 public:
     void setPosition(int x, int y) {
@@ -17,7 +17,7 @@ public:
     // this function is called
     // menu items are used by pressing ENTER
     // when they are hovered over
-    virtual void update(void) = 0;
+    virtual void update(int ch = 0) = 0;
 
     // when a menu item is hovered over
     virtual void enter(void) = 0;

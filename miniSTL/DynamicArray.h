@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
 
 #define DYNARR_STARTING_SIZE 16
 
@@ -48,9 +49,30 @@ public:
     // return the capacity of the array
     int arrayCapacity(void);
 
+    // erase all elements in this DynamicArray
+    // by setting numElements to zero
+    void clearSimple(void);
+
+    // erase all elements in this DynamicArray
+    // by deallocating memory for all elements
+    // then reallocating
+    void clearFull(void);
+
     // access elements like you would in a regular array
     T& operator[](const int index);
 };
+
+template<class T>
+void DynamicArray<T>::clearSimple(void) {
+    this->numElements = 0;
+}
+
+template<class T>
+void DynamicArray<T>::clearFull(void) {
+    delete[] arr;
+    arr = new T[DYNARR_STARTING_SIZE];
+    maxElements = DYNARR_STARTING_SIZE;
+}
 
 template<class T>
 void DynamicArray<T>::pushBack(T data) {
