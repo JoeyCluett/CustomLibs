@@ -37,9 +37,37 @@ void drawPolygon(SDL_Line* _line) {
 
         for(int i = 0; i < s; i++) {
             p2 = (*_line)[(i+1) % s];
-
             lineColor((*_line).getSurface(), p1.x, p1.y, p2.x, p2.y, (*_line).getColor());
             p1 = p2;
+        }
+
+    }
+}
+
+SDL_Point rotatePoint(SDL_Point p, float rad) {
+    float sin_rad = sinf(rad);
+    float cos_rad = cosf(rad);
+
+    float newx = p.x*cos_rad - p.y*sin_rad;
+    float newy = p.x*sin_rad + p.y*cos_rad;
+
+    return SDL_Point(newx, newy);
+}
+
+void drawPolygon(SDL_Line& _line, float x, float y, float r) {
+    int s = _line.lineSize();
+
+    if(s > 2) {
+        SDL_Point p1, p2;
+
+        for(int i = 0; i < s; i++) {
+            p1 = _line[i];
+            p2 = _line[(i+1) % s];
+
+            p1 = rotatePoint(p1, r);
+            p2 = rotatePoint(p2, r);
+
+            lineColor(_line.getSurface(), p1.x+x, p1.y+y, p2.x+x, p2.y+y, _line.getColor());
         }
 
     }

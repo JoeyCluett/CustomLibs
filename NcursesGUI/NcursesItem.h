@@ -15,6 +15,10 @@ public:
         this->y = y;
     }
 
+    int getType(void) {
+        return __ITEM_TYPE;
+    }
+
     // when a menu item as actually used
     // this function is called
     // menu items are used by pressing ENTER

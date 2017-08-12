@@ -33,6 +33,7 @@ public:
 NcursesRadioButton::NcursesRadioButton(int color_pair_on, int color_pair_off) {
     this->colorIndex_on  = color_pair_on;
     this->colorIndex_off = color_pair_off;
+    this->__ITEM_TYPE = __N_Type::id_radio_button;
 }
 
 bool NcursesRadioButton::isActive(void) {

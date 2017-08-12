@@ -6,7 +6,7 @@
 /*
     +--+        +--/
     |  |  <-->  |\/|
-    +--+  <-->  +--+
+    +--+        +--+
 */
 
 class NcursesCheckbox : public NcursesItem {
@@ -28,6 +28,7 @@ public:
 NcursesCheckbox::NcursesCheckbox(int color_pair_on, int color_pair_off) {
     this->colorIndex_on  = color_pair_on;
     this->colorIndex_off = color_pair_off;
+    this->__ITEM_TYPE    = __N_Type::id_checkbox;
 }
 
 void NcursesCheckbox::fillChars(int color_this) {
@@ -61,7 +62,15 @@ void NcursesCheckbox::enter(void) {
 }
 
 void NcursesCheckbox::exit(void) {
+    fillChars(colorIndex_off);
 
+    if(__checked) {
+        attron(COLOR_PAIR(colorIndex_off) | A_BOLD);
+        mvaddch(y+0, x+3, '/');
+        mvaddch(y+1, x+1, '\\');
+        mvaddch(y+1, x+2, '/');
+        attroff(COLOR_PAIR(colorIndex_off) | A_BOLD);
+    }
 }
 
 int NcursesCheckbox::getHeight(void) {

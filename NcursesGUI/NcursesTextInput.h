@@ -33,6 +33,7 @@ NcursesTextInput::NcursesTextInput(int color_pair_on, int color_pair_off, int nu
     this->colorIndex_on  = color_pair_on;
     this->colorIndex_off = color_pair_off;
     this->num_chars      = num_chars;
+    this->__ITEM_TYPE    = __N_Type::id_text_input;
 }
 
 bool NcursesTextInput::isEditing(void) {
