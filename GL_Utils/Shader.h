@@ -9,7 +9,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+// CustomLibs
 #include <MISC/FileLoader.h>
+#include <MISC/conio.h>
 
 /*
     Compile shader to object code
@@ -23,7 +25,7 @@ enum ShaderType {
 class ShaderGenerator {
 public:
     // compiles a given files contents as a shader object file
-    static GLuint compile(std::string filename, ShaderType __type);
+    static GLuint compile(std::string filename, ShaderType __type, bool __debug = true);
 
     // links multiple pre-compiled object files into a single shader executable
     static GLuint link(GLuint vertex_shader, GLuint fragment_shader);
@@ -32,7 +34,14 @@ public:
     static GLuint createProgram(std::string vertex_shader_file, std::string fragment_shader_file);
 };
 
-GLuint ShaderGenerator::compile(std::string filename, ShaderType __type) {
+GLuint ShaderGenerator::compile(std::string filename, ShaderType __type, bool __debug) {
+    if(__debug) {
+        if(__type == ShaderType::VERTEX)
+            std::cout << "Src: " << filename << "\nType: VERTEX\n";
+        if(__type == ShaderType::FRAGMENT)
+            std::cout << "Src: " << filename << "\nType: FRAGMENT\n";
+    }
+
     GLuint shader_id;
 
     if(__type == ShaderType::VERTEX)
@@ -42,7 +51,7 @@ GLuint ShaderGenerator::compile(std::string filename, ShaderType __type) {
 
     std::string contents = LoadFileToString(filename);
 
-    char* const sourcePtr = (char*)contents.c_str();
+    char const* sourcePtr = (char*)contents.c_str();
 
     glShaderSource(shader_id, 1, &sourcePtr, NULL);
     glCompileShader(shader_id);
@@ -58,7 +67,21 @@ GLuint ShaderGenerator::compile(std::string filename, ShaderType __type) {
         GLchar* error_log = new GLchar[log_length];
         glGetShaderInfoLog(shader_id, log_length, &log_length, error_log);
 
-        std::cout << error_log << std::endl;
+        std::cerr << "shader compile error: " << filename << std::endl;
+        std::cerr << "Error log:\n    " << error_log << std::endl;
+        std::cerr << "See INFO? y/n ";
+
+        int ch = getch();
+
+        if(ch == 'y') {
+            std::cerr << std::endl << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+            std::cerr << "GLSL version:   " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+            std::cerr << "GL vendor:      " << glGetString(GL_VENDOR) << std::endl;
+            std::cerr << "GL renderer:    " << glGetString(GL_RENDERER) << std::endl;
+            //std::cerr << "GL extensions:  " << glGetString(GL_EXTENSIONS) << std::endl;
+        } else {
+            std::cerr << std::endl;
+        }
 
         delete[] error_log;
 
@@ -84,6 +107,7 @@ GLuint ShaderGenerator::link(GLuint vertex_shader, GLuint fragment_shader) {
         glGetShaderiv(program_id, GL_INFO_LOG_LENGTH, &log_length);
 
         GLchar* error_log = new GLchar[log_length];
+        std::cout << "shader program link error" << std::endl;
         std::cout << error_log << std::endl;
         delete[] error_log;
 
