@@ -10,6 +10,8 @@
 
 #include <GL_Utils/ShaderGenerator.h>
 
+namespace Util {
+
 class Shader {
 private:
     GLuint shader_program;
@@ -48,5 +50,7 @@ Shader::Shader(std::string _prefix, std::string loc_vertex_shader, std::string l
 void Shader::bind(void) {
     glUseProgram(shader_program);
 }
+
+} // namespace Util
 
 #endif // __JJC__SHADER__H__

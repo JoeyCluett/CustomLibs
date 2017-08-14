@@ -10,6 +10,8 @@
 
 #include <GL_Utils/TextureLoader.h>
 
+namespace Util {
+
 class Texture {
 private:
     GLuint texture_id;
@@ -37,5 +39,7 @@ Texture::Texture(std::string prefix, std::string filename) {
 void Texture::bind(void) {
     glBindTexture(GL_TEXTURE_2D, texture_id);
 }
+
+} // namespace Util
 
 #endif // __JJC__TEXTURE__H__
