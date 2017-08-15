@@ -25,6 +25,15 @@ public:
     // constructor allows a prefix for the files
     Shader(std::string _prefix, std::string loc_vertex_shader, std::string loc_fragment_shader);
 
+    // get compiled fragment shader ID
+    GLuint getFragmentShader(void) { return fragment_shader; }
+
+    // get compiled vertex shader ID
+    GLuint getVertexShader(void) { return vertex_shader; }
+
+    // get the address of a uniform location in this Shader
+    GLuint getUniformLocation(std::string uniform_name);
+
     // bind before using shader to render
     void bind(void);
 };
@@ -49,6 +58,10 @@ Shader::Shader(std::string _prefix, std::string loc_vertex_shader, std::string l
 
 void Shader::bind(void) {
     glUseProgram(shader_program);
+}
+
+GLuint Shader::getUniformLocation(std::string uniform_name) {
+    return glGetUniformLocation(shader_program, (char*)uniform_name.c_str());
 }
 
 } // namespace Util

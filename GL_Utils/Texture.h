@@ -24,6 +24,8 @@ public:
     Texture(std::string prefix, std::string filename);
 
     void bind(void);
+
+    GLuint getID(void) { return texture_id; }
 };
 
 Texture::Texture(std::string filename) {

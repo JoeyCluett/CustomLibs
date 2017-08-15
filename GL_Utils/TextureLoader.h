@@ -28,7 +28,7 @@ public:
 };
 
 // initialize static data members
-bool TextureLoader::__inited = false;
+bool   TextureLoader::__inited = false;
 GLuint TextureLoader::__texture_handle = 0;
 
 void TextureLoader::load(std::string filename) {
@@ -42,7 +42,7 @@ void TextureLoader::load(std::string filename) {
 }
 
 void TextureLoader::InitIL(void) {
-    ilutRenderer(ILUT_OPENGL);
+//    ilutRenderer(ILUT_OPENGL);
     ilInit();
     iluInit();
     ilutInit();
