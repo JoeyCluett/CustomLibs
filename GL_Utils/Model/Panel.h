@@ -75,13 +75,16 @@ private:
 
 public:
     Panel(void) { ; }
+    Panel(Util::VertexArrayObject _vao) {
+        this->_vao = _vao;
+    }
     Panel(GLfloat height, GLfloat width);
 
     // set the Shader and Texture of this Panel
     void setShaderTexture(Util::Shader shader, Util::Texture texture);
 
     GLfloat* getPts(void) { return __pts; }
-    GLfloat* getUV(void) { return __uv; }
+    GLfloat* getUV(void) {  return __uv; }
 
     void setUVCoordinates(GLfloat* __uv);
 

@@ -9,7 +9,8 @@
 #include <MISC/RandomNumber.h>
 
 // initialize GLFW with proper versioning, GLEW
-GLFWwindow* GLFW_Init(int width, int height, std::string window_title, int v_major, int v_minor, GLboolean forward_compat);
+GLFWwindow* GLFW_Init(int width, int height, std::string window_title, int v_major, int v_minor,
+                      GLboolean forward_compat, GLboolean fullscreen);
 
 // return a random color (R, G, or B)
 GLfloat randColor(void);
@@ -18,7 +19,9 @@ GLfloat randColor(void);
 // function definitions
 // ====================================
 
-GLFWwindow* GLFW_Init(int width, int height, std::string window_title, int v_major, int v_minor, GLboolean forward_compat) {
+GLFWwindow* GLFW_Init(int width, int height, std::string window_title, int v_major, int v_minor,
+                      GLboolean forward_compat, GLboolean fullscreen) {
+
     if(!glfwInit()) { // init GLFW3
         std::cerr << "Failed to initialize GLFW3" << std::endl;
         exit(-1);
@@ -32,7 +35,12 @@ GLFWwindow* GLFW_Init(int width, int height, std::string window_title, int v_maj
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,forward_compat);           // for all dem MacOS users
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // away with old OpenGL
 
-    GLFWwindow* window = glfwCreateWindow(width, height, window_title.c_str(), NULL, NULL);
+    GLFWwindow* window = 0;
+
+    if(fullscreen)
+        window = glfwCreateWindow(width, height, window_title.c_str(), glfwGetPrimaryMonitor(), NULL);
+    else
+        window = glfwCreateWindow(width, height, window_title.c_str(), NULL, NULL);
 
     if(!window) {
         std::cerr << "Failed to open GLFW window" << std::endl;

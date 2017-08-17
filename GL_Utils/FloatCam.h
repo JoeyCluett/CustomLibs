@@ -66,7 +66,7 @@ void FloatCam::update(float deltaTime) {
     double xPos, yPos;
     glfwGetCursorPos(window, &xPos, &yPos);
 
-    if(lock_mouse)
+    //if(lock_mouse)
         glfwSetCursorPos(window, screenW/2, screenH/2);
 
     _horizontal_angle += mouse_speed * deltaTime * float(screenW/2 - xPos);
