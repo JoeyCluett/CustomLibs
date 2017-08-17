@@ -23,6 +23,9 @@ public:
     // supply the filename with a prefix
     Texture(std::string prefix, std::string filename);
 
+    // default constructor
+    Texture(void) { ; }
+
     void bind(void);
 
     GLuint getID(void) { return texture_id; }

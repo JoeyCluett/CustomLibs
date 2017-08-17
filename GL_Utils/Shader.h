@@ -25,6 +25,9 @@ public:
     // constructor allows a prefix for the files
     Shader(std::string _prefix, std::string loc_vertex_shader, std::string loc_fragment_shader);
 
+    // default constructor
+    Shader(void) { ; }
+
     // get compiled fragment shader ID
     GLuint getFragmentShader(void) { return fragment_shader; }
 
