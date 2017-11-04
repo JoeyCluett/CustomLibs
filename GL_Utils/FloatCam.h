@@ -37,6 +37,9 @@ public:
     // set position of camera
     void setPosition(glm::vec3 pos) { this->position = pos; }
 
+    // set the point this camera looks at
+    void setLookAt(glm::vec3 look);
+
     // set the direction the camera is looking at
     void setOrientation(GLfloat horizontal_angle, GLfloat vertical_angle) {
             this->_horizontal_angle = horizontal_angle;
@@ -60,6 +63,15 @@ FloatCam::FloatCam(glm::vec3 pos, GLfloat speed, int screenW, int screenH, GLflo
     this->screenH     = screenH;
     this->mouse_speed = mouse_speed;
     this->window      = window;
+}
+
+void FloatCam::setLookAt(glm::vec3 look) {
+    glm::vec3 direction = glm::vec3(
+            look.x - position.x,
+            look.y - position.y,
+            look.z - position.z
+            );
+    this->direction = direction;
 }
 
 void FloatCam::update(float deltaTime) {

@@ -8,9 +8,21 @@
 #include <termios.h>
 #include <unistd.h>
 #include <iostream>
-
+#include <stdlib.h>
 
 #define SC SerialController
+
+enum WORDSIZE {
+    _7, _8
+};
+
+enum PARITY {
+    ODD, EVEN, OFF
+};
+
+enum STOPBITS {
+    _1, _2
+};
 
 class SerialController {
 private:
@@ -20,17 +32,6 @@ private:
     void parityEnable(void);
 
 public:
-    enum PARITY {
-        ODD, EVEN, OFF
-    };
-
-    enum WORDSIZE {
-        _7, _8
-    };
-
-    enum STOPBITS {
-        _1, _2
-    };
 
     // constructor that does nothing
     SerialController(void);
@@ -41,11 +42,17 @@ public:
     // specify a serial device to use
     void set_SerialPort(const char* serialPort);
 
-    // read a certain number of bytes from the serial port
-    void readBuffer(char* buffer, int bufSize);
+    // try to read a certain number of bytes from the serial port
+    int readBuffer(char* buffer, int bufSize);
 
-    // write a certain number of bytes from the serial port
-    void writeBuffer(char* buffer, int bufSize);
+    // guarantee read bufSize bytes
+    void readChunk(char* buffer, int bufSize);
+
+    // try to write a certain number of bytes from the serial port
+    int writeBuffer(char* buffer, int bufSize);
+
+    // guarantee write bufSize bytes
+    void writeChunk(char* buffer, int bufSize);
 
     // set the read/write speeds for the serial port
     void set_BaudRate(int baudrate);
@@ -106,12 +113,29 @@ void SC::parityEnable(void) {
     tty.c_cflag |= PARENB;
 }
 
-void SC::writeBuffer(char* buffer, int bufSize) {
-    write(fd, buffer, bufSize);
+int SC::writeBuffer(char* buffer, int bufSize) {
+    return write(fd, buffer, bufSize);
 }
 
-void SC::readBuffer(char* buffer, int bufSize) {
-    read(fd, buffer, bufSize);
+int SC::readBuffer(char* buffer, int bufSize) {
+    return read(fd, buffer, bufSize);
+}
+
+void SC::writeChunk(char* buffer, int bufSize) {
+    int bytes_written = 0;
+
+    while(bytes_written != bufSize) {
+        bytes_written += write(fd, buffer+bytes_written, bufSize-bytes_written);
+    }
+
+}
+
+void SC::readChunk(char* buffer, int bufSize) {
+    int bytes_read = 0;
+
+    while(bytes_read != bufSize) {
+        bytes_read += read(fd, buffer+bytes_read, bufSize-bytes_read);
+    }
 }
 
 void SC::set_BaudRate(int baudrate) {
@@ -119,7 +143,7 @@ void SC::set_BaudRate(int baudrate) {
     cfsetospeed(&tty, baudrate);
 }
 
-void SC::set_Parity(SC::PARITY parity) {
+void SC::set_Parity(PARITY parity) {
     switch(parity) {
         case EVEN:
             tty.c_cflag |= PARENB;
@@ -138,7 +162,7 @@ void SC::set_Parity(SC::PARITY parity) {
     }
 }
 
-void SC::set_StopBits(SC::STOPBITS stopbits) {
+void SC::set_StopBits(STOPBITS stopbits) {
     switch(stopbits) {
         case _1:
             tty.c_cflag &= ~CSTOPB;
@@ -152,7 +176,7 @@ void SC::set_StopBits(SC::STOPBITS stopbits) {
     }
 }
 
-void SC::set_WordSize(SC::WORDSIZE wordsize) {
+void SC::set_WordSize(WORDSIZE wordsize) {
     switch(wordsize) {
         case _7:
             tty.c_cflag &= ~CSIZE;

@@ -40,7 +40,7 @@ void NVL::addItemToLayout(NcursesItem* _item) {
     __item_vec.pushBack(_item);
 }
 
-NcursesVerticalLayout::configure(void) {
+void NcursesVerticalLayout::configure(void) {
     int s = __item_vec.arraySize();
     int _y = __item_space;
 

@@ -119,7 +119,7 @@ public:
 
 };
 
-SimpleCube::SimpleCube(void) : SimpleCube(1, 1, 1) {
+SimpleCube::SimpleCube(void) : SimpleCube(1.0, 1.0, 1.0) {
     ;
 }
 
@@ -161,6 +161,7 @@ SimpleCube::SimpleCube(GLfloat x_scale, GLfloat y_scale, GLfloat z_scale) {
 
 void SimpleCube::applyTranslation(GLfloat x, GLfloat y, GLfloat z) {
     orig_translation = glm::vec3(x, y, z);
+    setTranslation(0, 0, 0);
 }
 
 void SimpleCube::finalize(void) {
