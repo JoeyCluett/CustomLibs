@@ -1,16 +1,29 @@
 #ifndef __JJC__RS232GENERIC__H__
 #define __JJC__RS232GENERIC__H__
 
-#include <sys/ioctl.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <iostream>
-
+#include <vector>
 
 #define SC SerialController
+
+enum Parity {
+    Parity_ODD,
+    Parity_EVEN,
+    Parity_OFF
+};
+
+enum WordSize {
+    WordSize_7, WordSize_8
+};
+
+enum StopBits {
+    StopBits_1, StopBits_2
+};
 
 class SerialController {
 private:
@@ -20,18 +33,6 @@ private:
     void parityEnable(void);
 
 public:
-    enum PARITY {
-        ODD, EVEN, OFF
-    };
-
-    enum WORDSIZE {
-        _7, _8
-    };
-
-    enum STOPBITS {
-        _1, _2
-    };
-
     // constructor that does nothing
     SerialController(void);
 
@@ -41,38 +42,35 @@ public:
     // specify a serial device to use
     void set_SerialPort(const char* serialPort);
 
-    // read a certain number of bytes from the serial port
-    void readBuffer(char* buffer, int bufSize);
+    // try to read a certain number of bytes from the serial port
+    int readBuffer(char* buffer, int bufSize);
 
-    // write a certain number of bytes from the serial port
-    void writeBuffer(char* buffer, int bufSize);
+    // try write a certain number of bytes from the serial port
+    int writeBuffer(char* buffer, int bufSize);
+
+    // block until operations are complete
+    void readChunk(char* buffer, int bufSize);
+    void writeChunk(char* buffer, int bufSize);
 
     // set the read/write speeds for the serial port
     void set_BaudRate(int baudrate);
 
     // set odd/even/no parity for this serial port
-    void set_Parity(PARITY parity);
+    void set_Parity(Parity parity);
 
     // set either 7 or 8 bit word for this serial port
-    void set_WordSize(WORDSIZE wordsize);
+    void set_WordSize(WordSize wordsize);
 
     // set either 1 or 2 stop bits for this port
-    void set_StopBits(STOPBITS stopbits);
-
-    // dont use either of these two methods yet, still figuring out
-    bool set_ModeBlocking(void);    // set the serial port as blocking, returns true on success
-    bool set_ModeNonblocking(void); // set the serial port as non-blocking, returns true on success
-
-    // how much data can currently be read from the serial port
-    int hasData(void);
+    void set_StopBits(StopBits stopbits);
 
     // start serial communications
     void start(void);
 
-    // return the file descriptor of the serial port
     int get_FileDescriptor(void);
-};
 
+    int updateBuffer(std::vector<char>& vec);
+};
 
 SC::SerialController(void) {
     ;
@@ -82,23 +80,34 @@ SC::SerialController(const char* serialPort) {
     SerialController::set_SerialPort(serialPort);
 }
 
+int SC::updateBuffer(std::vector<char>& vec) {
+    char buf[1024];
+    int i = read(fd, buf, 1024);
+
+    for(int j = 0; j < i; j++)
+        vec.push_back(buf[j]);
+
+    return i;
+}
+
 void SC::set_SerialPort(const char* serialPort) {
     memset(&tty, 0, sizeof tty);
     fd = open(serialPort, O_RDWR | O_NOCTTY | O_NDELAY); // pretty standard flags
     if(fd < 0) {
         int e = errno;
         std::cerr << "Error opening file" << std::endl;
-        std::cerr << "    Error: " << strerror(e) << std::endl;
+        std::cerr << "    Error code: " << e << std::endl;
+        std::cerr << " -- " << strerror(e) << std::endl;
         exit(-1);
     }
 
     if(tcgetattr(fd, &tty) < 0) {
         int e = errno;
         std::cerr << "Error retrieving attributes" << std::endl;
-        std::cerr << "    Error: " << strerror(e) << std::endl;
+        std::cerr << "    Error code: " << e << std::endl;
+        std::cerr << " -- " << strerror(e) << std::endl;
         exit(-1);
     }
-
     serialPortSet = true;
 }
 
@@ -106,12 +115,24 @@ void SC::parityEnable(void) {
     tty.c_cflag |= PARENB;
 }
 
-void SC::writeBuffer(char* buffer, int bufSize) {
-    write(fd, buffer, bufSize);
+int SC::writeBuffer(char* buffer, int bufSize) {
+    return write(fd, buffer, bufSize);
 }
 
-void SC::readBuffer(char* buffer, int bufSize) {
-    read(fd, buffer, bufSize);
+int SC::readBuffer(char* buffer, int bufSize) {
+    return read(fd, buffer, bufSize);
+}
+
+void SC::readChunk(char* buffer, int bufSize) {
+    int bytes_read = 0;
+    while(bytes_read < bufSize)
+        bytes_read += read(fd, buffer+bytes_read, bufSize-bytes_read);
+}
+
+void SC::writeChunk(char* buffer, int bufSize) {
+    int bytes_writ = 0;
+    while(bytes_writ < bufSize)
+        bytes_writ += write(fd, buffer+bytes_writ, bufSize-bytes_writ);
 }
 
 void SC::set_BaudRate(int baudrate) {
@@ -119,17 +140,17 @@ void SC::set_BaudRate(int baudrate) {
     cfsetospeed(&tty, baudrate);
 }
 
-void SC::set_Parity(SC::PARITY parity) {
+void SC::set_Parity(Parity parity) {
     switch(parity) {
-        case EVEN:
+        case Parity_EVEN:
             tty.c_cflag |= PARENB;
             tty.c_cflag &= ~PARODD;
             break;
-        case ODD:
+        case Parity_ODD:
             tty.c_cflag |= PARENB;
             tty.c_cflag |= PARODD;
             break;
-        case OFF: // disable the parity bit
+        case Parity_OFF: // disable the parity bit
             tty.c_cflag &= ~PARENB;
             break;
         default:
@@ -138,12 +159,12 @@ void SC::set_Parity(SC::PARITY parity) {
     }
 }
 
-void SC::set_StopBits(SC::STOPBITS stopbits) {
+void SC::set_StopBits(StopBits stopbits) {
     switch(stopbits) {
-        case _1:
+        case StopBits_1:
             tty.c_cflag &= ~CSTOPB;
             break;
-        case _2:
+        case StopBits_2:
             tty.c_cflag |= CSTOPB;
             break;
         default:
@@ -152,13 +173,13 @@ void SC::set_StopBits(SC::STOPBITS stopbits) {
     }
 }
 
-void SC::set_WordSize(SC::WORDSIZE wordsize) {
+void SC::set_WordSize(WordSize wordsize) {
     switch(wordsize) {
-        case _7:
+        case WordSize_7:
             tty.c_cflag &= ~CSIZE;
             tty.c_cflag |= CS7;
             break;
-        case _8:
+        case WordSize_8:
             tty.c_cflag &= ~CSIZE;
             tty.c_cflag |= CS8;
             break;
@@ -179,47 +200,6 @@ void SerialController::start(void) {
         std::cerr << "    Error code: " << errno << std::endl;
         exit(-1);
     }
-}
-
-bool SerialController::set_ModeBlocking(void) {
-    if(!serialPortSet) {
-        std::cerr << "Error: serial port not started" << std::endl;
-        exit(-1);
-    }
-
-    int sFlags = fcntl(fd, F_GETFL, 0);
-
-    if(sFlags == -1)
-        return false;
-
-    sFlags &= ~O_NONBLOCK;
-
-    if(fcntl(fd, F_SETFL, sFlags) == -1)
-        return false;
-
-    // return success
-    return true;
-}
-
-bool SerialController::set_ModeNonblocking(void) {
-    int sFlags = fcntl(fd, F_GETFL, 0);
-
-    if(sFlags == -1)
-        return false;
-
-    sFlags |= O_NONBLOCK;
-
-    if(fcntl(fd, F_SETFL, sFlags) == -1)
-        return false;
-
-    // return success
-    return true;
-}
-
-int SerialController::hasData(void) {
-    int bAvail;
-    ioctl(fd, FIONREAD, &bAvail);
-    return bAvail;
 }
 
 int SerialController::get_FileDescriptor(void) {

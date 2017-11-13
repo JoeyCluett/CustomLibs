@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <ctime>
+#include <sys/time.h>
 
 typedef std::chrono::time_point<std::chrono::system_clock> TimePoint;
 
@@ -29,6 +30,8 @@ public:
     // get total time in seconds since object was instantiated
     double getTotalElapsedTime(void);
 
+    static uint64_t getUsecTimestamp(void);
+
 private:
     // this TimePoint gets set once when the object is instantiated
     TimePoint firstTP;
@@ -43,6 +46,17 @@ private:
     std::chrono::duration<double> elapsedSeconds;
 
 };
+
+uint64_t TimeClass::getUsecTimestamp(void) {
+    timeval tv;
+    gettimeofday(&tv, NULL);
+
+    uint64_t timestamp = tv.tv_sec;
+    timestamp *= 1000000;
+    timestamp += tv.tv_usec;
+
+    return timestamp;
+}
 
 TimeClass::TimeClass(void) {
     currentTP = std::chrono::system_clock::now();
