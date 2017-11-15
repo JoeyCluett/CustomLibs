@@ -2,6 +2,9 @@
 #define __QUICK__QUEUE__H__
 
 #include <list>
+#include <vector>
+#include <string.h>
+#include <stdlib.h>
 
 #ifndef NODE_BUFFER_SIZE
 #define NODE_BUFFER_SIZE 512
