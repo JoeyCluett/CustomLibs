@@ -3,6 +3,7 @@
 
 #include <list>
 #include <vector>
+#include <string>
 #include <string.h>
 #include <stdlib.h>
 
@@ -142,7 +143,7 @@ void QuickQueue::pop(std::string& str) {
     do {
         c = getCharFromQueue();
         tmp_vec.push_back(c);
-    } while(c != NULL); // null-terminated string
+    } while(c != 0x00); // null-terminated string
 
     str = &tmp_vec[0];
 }
